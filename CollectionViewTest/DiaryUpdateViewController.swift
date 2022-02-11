@@ -20,6 +20,12 @@ class DiaryUpdateViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.navigationItem.title = "수정화면"
+        
+        self.navigationController?.navigationBar.titleTextAttributes = [
+            .foregroundColor : UIColor.orange,
+            .font : UIFont.boldSystemFont(ofSize: 20)
+        ]
         self.configureDataFiled()
         self.configurationDatePicker()
         self.configureTextColor()
@@ -32,9 +38,13 @@ class DiaryUpdateViewController: UIViewController {
         self.titleLabel.font = .boldSystemFont(ofSize: 20)
         self.contentLabel.textColor = .white
         self.dateLabel.textColor = .white
+        
         self.titleField.layer.borderColor = UIColor.white.cgColor
-        self.titleField.setPlaceholderColor(.red)
-        self.titleField.placeholder = "제목을 입력해주세요"
+        self.titleField.delegate = self
+        self.contentField.delegate = self
+        
+       
+        
         self.contentField.layer.borderColor = UIColor.white.cgColor
         self.dateFiled.layer.borderColor = UIColor.white.cgColor
         NotificationCenter.default.addObserver(self,
@@ -157,6 +167,33 @@ class DiaryUpdateViewController: UIViewController {
     deinit {
         NotificationCenter.default.removeObserver(self)
         print("updateVIew Deinit")
+    }
+}
+
+extension DiaryUpdateViewController: UITextViewDelegate {
+    
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if textView.textColor == .red {
+            textView.text = nil
+            textView.textColor = .red
+        }
+    }
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if textView.text.isEmpty {
+            textView.text = "내용을 입력해주세요"
+            textView.textColor = .red
+        }
+    }
+}
+extension DiaryUpdateViewController: UITextFieldDelegate{
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        textField.placeholder = nil
+    }
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        if textField.placeholder == nil {
+            textField.placeholder = "제목을 입력해주세요"
+            self.titleField.setPlaceholderColor(.red)
+        }
     }
 }
 

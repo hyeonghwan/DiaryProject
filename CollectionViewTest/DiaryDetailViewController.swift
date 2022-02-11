@@ -26,9 +26,20 @@ class DiaryDetailViewController: UIViewController {
     
     
     override func viewDidLoad() {
-        
         self.contentTextView.layer.borderColor = UIColor.red.cgColor
         self.contentTextView.layer.borderWidth = 1.0
+        self.navigationItem.title = "추가화면"
+        self.navigationController?.navigationBar.titleTextAttributes = [
+            .foregroundColor : UIColor.orange,
+            .font : UIFont.boldSystemFont(ofSize: 20)
+        ]
+        
+        self.titleTextField.setPlaceholderColor(.lightGray)
+        titleTextField.placeholder = "제목을 입력해주세요"
+        self.titleTextField.delegate = self
+        self.contentTextView.delegate = self
+        contentTextView.text = "내용을 입력해주세요"
+        contentTextView.textColor = .lightGray
         self.addBtn.isEnabled = false
         self.configureDatePicker()
         self.inputTextChangeConfigure()
@@ -89,7 +100,7 @@ class DiaryDetailViewController: UIViewController {
         self.addBtn.isEnabled =
         !(self.titleTextField.text?.isEmpty ?? true)
         && !(self.dateTextField.text?.isEmpty ?? true)
-        && !(self.contentTextView.text.isEmpty)
+        && !(self.contentTextView.textColor == .lightGray)
     }
     
     @IBAction func addBtnClicked(_ sender: UIBarButtonItem) {
@@ -127,8 +138,30 @@ extension DiaryDetailViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         self.TextInvalidInput()
     }
-    
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if textView.textColor == .lightGray {
+            textView.text = nil
+            textView.textColor = .black
+        }
+    }
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if textView.text.isEmpty {
+            textView.text = "내용을 입력해주세요"
+            textView.textColor = .lightGray
+        }
+    }
 }
+extension DiaryDetailViewController: UITextFieldDelegate{
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        textField.placeholder = nil
+    }
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        if textField.placeholder == nil {
+            textField.placeholder = "제목을 입력해주세요"
+        }
+    }
+}
+
 public extension UITextField {
     func setPlaceholderColor(_ placeholderColor: UIColor) {
         attributedPlaceholder = NSAttributedString(

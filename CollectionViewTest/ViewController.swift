@@ -12,12 +12,15 @@ class ViewController: UIViewController{
             self.saveData()
         }
     }
+    var tempArray: [DiaryInfo] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.tabBarController?.tabBar.isHidden = false
         print("load data")
         self.configurationLayout()
         self.loadData()
+        self.configureRefreshController()
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(editDiaryNotification(_ :)),
                                                name: Notification.Name("editDiary"),
@@ -30,9 +33,30 @@ class ViewController: UIViewController{
                                                selector: #selector(deleteDiaryNotification(_ :)),
                                                name: Notification.Name("DeleteDiary"),
                                                object: nil)
+        
     }
-    
-    
+    fileprivate func configureRefreshController() {
+        let refreshControl = UIRefreshControl()
+        refreshControl.attributedTitle = NSAttributedString(string: "땡겨!~", attributes: [
+            .foregroundColor : UIColor.orange.cgColor,
+            .font : UIFont.boldSystemFont(ofSize: 12)])
+        refreshControl.addTarget(self, action: #selector(handleRefreshControll), for: .valueChanged)
+        refreshControl.tintColor = .orange
+        self.collectionView.refreshControl = refreshControl
+    }
+    @objc fileprivate func handleRefreshControll(){
+        self.collectionView.visibleCells.forEach{
+            $0.alpha = 0.0
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: { [weak self] in
+            guard let self = self else {return}
+            self.collectionView.visibleCells.forEach{
+                $0.alpha = 1.0
+            }
+            self.collectionView.refreshControl?.endRefreshing()
+        })
+      
+    }
     @objc private func editDiaryNotification(_ notification: Notification) {
         print("editDiaryNotification")
         guard let diary = notification.object as? DiaryInfo else {return}
@@ -63,8 +87,14 @@ class ViewController: UIViewController{
     }
     
     private func configurationLayout() {
-        self.navigationItem.title
+        
         self.view.backgroundColor = .black
+        self.navigationController?.navigationBar.backgroundColor = .black
+        self.navigationController?.navigationBar.tintColor = .orange
+        self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.orange]
+        self.tabBarController?.tabBar.tintColor = .orange
+        
+        
         self.collectionView.backgroundColor = .black
         self.collectionView.collectionViewLayout = UICollectionViewFlowLayout()
         self.collectionView.contentInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
@@ -154,7 +184,7 @@ extension ViewController: UICollectionViewDataSource{
 }
 extension ViewController: UICollectionViewDelegateFlowLayout{
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: (UIScreen.main.bounds.width / 2) - 20, height: 200)
+        return CGSize(width: (UIScreen.main.bounds.width / 2) - 20, height: (UIScreen.main.bounds.width / 2) - 20)
     }
 }
 

@@ -4,13 +4,23 @@ import UIKit
 class StarNavigationViewController: UIViewController {
 
     @IBOutlet weak var collectionView: UICollectionView!
-    
+    var collectionViewCell: [UICollectionViewCell] = []
     var diaryList: [DiaryInfo] = []
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.navigationItem.title = "즐겨찾기"
+        self.navigationController?.navigationBar.tintColor = .orange
+        self.navigationController?.navigationBar.titleTextAttributes = [
+            .foregroundColor : UIColor.orange,
+            .font : UIFont.boldSystemFont(ofSize: 20)
+        ]
+      
+        
         print("starViewDidLoad")
         self.configureCollectionView()
         self.configureView()
+        self.configureRefreshController()
+     
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(editNotifiCation(_:)),
                                                name: Notification.Name("editDiary"),
@@ -23,7 +33,34 @@ class StarNavigationViewController: UIViewController {
                                                selector: #selector(deleteDiaryNotification(_ :)),
                                                name: Notification.Name("DeleteDiary"),
                                                object: nil)
+    } //viewDidLoad
+
+    
+    fileprivate func configureRefreshController() {
+        let refreshControl = UIRefreshControl()
+        refreshControl.attributedTitle = NSAttributedString(string: "땡겨!~", attributes: [
+            .foregroundColor : UIColor.orange.cgColor,
+            .font : UIFont.boldSystemFont(ofSize: 12)])
+        refreshControl.addTarget(self, action: #selector(handleRefreshControll), for: .valueChanged)
+        refreshControl.tintColor = .orange
+        self.collectionView.refreshControl = refreshControl
     }
+    @objc fileprivate func handleRefreshControll(){
+        self.collectionView.visibleCells.forEach{
+            $0.alpha = 0.0
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: { [weak self] in
+            guard let self = self else {return}
+            self.collectionView.visibleCells.forEach{
+                $0.alpha = 1.0
+            }
+            self.collectionView.refreshControl?.endRefreshing()
+        })
+    }
+    
+    
+    
+    
     @objc func editNotifiCation(_ notification: Notification){
         print("starNavigationEditNotifiCation")
         guard let diary = notification.object as? DiaryInfo else {return}
@@ -77,6 +114,7 @@ class StarNavigationViewController: UIViewController {
     } //configureView DiaryList 구성 함수
     
     private func configureCollectionView() {
+        
         self.collectionView.backgroundColor = UIColor.black
         self.view.backgroundColor = UIColor.black
         self.collectionView.delegate = self
@@ -106,6 +144,8 @@ extension StarNavigationViewController: UICollectionViewDelegate{
         viewController.diary = self.diaryList[indexPath.row]
         viewController.indexPath = indexPath
     }
+    
+   
 }
 
 extension StarNavigationViewController: UICollectionViewDataSource{
@@ -120,6 +160,7 @@ extension StarNavigationViewController: UICollectionViewDataSource{
         cell.dateCell.text = self.dateToString(diary.date)
         cell.titleCell.textColor = .white
         cell.dateCell.textColor = .white
+        self.collectionViewCell.append(cell)
         return cell
     }
 }

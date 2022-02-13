@@ -35,6 +35,7 @@ class ViewController: UIViewController{
                                                object: nil)
         
     }
+    //MARK: - refresh
     fileprivate func configureRefreshController() {
         let refreshControl = UIRefreshControl()
         refreshControl.attributedTitle = NSAttributedString(string: "땡겨!~", attributes: [
@@ -57,6 +58,8 @@ class ViewController: UIViewController{
         })
       
     }
+    
+    //MARK: - edit,star,delete Notification
     @objc private func editDiaryNotification(_ notification: Notification) {
         print("editDiaryNotification")
         guard let diary = notification.object as? DiaryInfo else {return}
@@ -86,10 +89,11 @@ class ViewController: UIViewController{
         self.collectionView.reloadData()
     }
     
+    //MARK: - LayoutConfiguration
     private func configurationLayout() {
-        
-        self.view.backgroundColor = .black
-        self.navigationController?.navigationBar.backgroundColor = .black
+        self.navigationController?.navigationBar.barTintColor = .white
+        self.view.backgroundColor = .white
+        self.navigationController?.navigationBar.backgroundColor = .white
         self.navigationController?.navigationBar.tintColor = .orange
         self.navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.orange]
         self.tabBarController?.tabBar.tintColor = .orange
@@ -115,6 +119,8 @@ class ViewController: UIViewController{
         return dateStr
     }
     
+    
+   //MARK: - Data save and Load
     private func saveData() {
         let data = self.diaryList.map {
             [
@@ -148,6 +154,7 @@ class ViewController: UIViewController{
  
 }
 
+//MARK: - DiaryDelegate
 extension ViewController: DiaryDelegate {
     func sendDiaryInfo(diary: DiaryInfo) {
         self.diaryList.append(diary)
@@ -156,6 +163,7 @@ extension ViewController: DiaryDelegate {
 }
 
 
+//MARK: - extenstion _ COllectionViewDelegate
 extension ViewController: UICollectionViewDelegate{
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let viewController = self.storyboard?.instantiateViewController(withIdentifier: "DiaryUpdateViewController") as? DiaryUpdateViewController else {return}
